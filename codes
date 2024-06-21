@@ -1,0 +1,120 @@
+# komponovshik
+
+from abc import ABC, abstractmethod
+
+class Item(ABC):
+    @abstractmethod
+    def get_price(self) -> float:
+        pass
+
+class Product(Item):
+    def __init__(self, name: str, price: float):
+        self.name = name
+        self.price = price
+
+    def get_price(self) -> float:
+        return self.price
+
+class Box(Item):
+    def __init__(self):
+        self.items = []
+
+    def add_item(self, item: Item):
+        self.items.append(item)
+
+    def get_price(self) -> float:
+        total = 0
+        for item in self.items:
+            total += item.get_price()
+        return total
+
+if __name__ == "__main__":
+    # Создаем отдельные продукты
+    product1 = Product("Product 1", 10.0)
+    product2 = Product("Product 2", 15.0)
+    product3 = Product("Product 3", 5.0)
+
+    # Создаем первую коробку и добавляем в нее продукты
+    box1 = Box()
+    box1.add_item(product1)
+    box1.add_item(product2)
+
+    # Создаем вторую коробку и добавляем в нее продукт и первую коробку
+    box2 = Box()
+    box2.add_item(product3)
+    box2.add_item(box1)
+
+    # Выводим общую стоимость второй коробки
+    print(f"Total price of box2: {box2.get_price()}")
+
+# Zamestitel
+
+  from abc import ABC, abstractmethod
+
+class Database(ABC):
+    @abstractmethod
+    def query(self, sql: str):
+        pass
+
+
+class RealDatabase(Database):
+    def query(self, sql: str):
+        
+        print(f"Executing query: {sql}")
+        return f"Result for '{sql}'"
+
+class DatabaseProxy(Database):
+    def __init__(self):
+        self.real_database = RealDatabase()
+        self.cache = {}
+
+    def query(self, sql: str):
+        if sql in self.cache:
+            print(f"Returning cached result for query: {sql}")
+            return self.cache[sql]
+        else:
+            result = self.real_database.query(sql)
+            self.cache[sql] = result
+            return result
+
+if __name__ == "__main__":
+    proxy = DatabaseProxy()
+
+    # Первый запрос будет выполнен реальной базой данных
+    result1 = proxy.query("SELECT * FROM users")
+    print(result1)
+
+    # Второй запрос с тем же SQL будет взят из кэша
+    result2 = proxy.query("SELECT * FROM users")
+    print(result2)
+
+    # Новый запрос будет выполнен реальной базой данных
+    result3 = proxy.query("SELECT * FROM orders")
+    print(result3)
+
+# inversion control
+
+from abc import ABC, abstractmethod
+
+class Service(ABC):
+    @abstractmethod
+    def execute(self):
+        pass
+
+class ConcreteService(Service):
+    def execute(self):
+        print("Executing service operation...")
+
+class Client:
+    def __init__(self, service: Service):
+        self.service = service
+
+    def do_work(self):
+        print("Client is doing work...")
+        self.service.execute()
+
+if __name__ == "__main__":
+    service = ConcreteService()
+    client = Client(service)
+    client.do_work()
+
